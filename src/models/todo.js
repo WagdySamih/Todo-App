@@ -9,6 +9,10 @@ const todoSchema = mongoose.Schema({
         type: String,
         required: [true, 'You Must Provide Todo body']
     },
+    isCompleted:{
+        type: Boolean,
+        default: false
+    },
     owner:{
         type: mongoose.Schema.Types.ObjectId,
         required: [true, 'Todo must have an owner'],
@@ -17,6 +21,8 @@ const todoSchema = mongoose.Schema({
 },{
     timestamps: true
 })
+/// for search purposes
+todoSchema.index({title:"text",body:"text"})
 
 const Todo = mongoose.model('Todo',todoSchema)
 module.exports  = Todo

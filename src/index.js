@@ -6,16 +6,12 @@ const app = express()
 
 const userRouter =  require('./routers/user')
 const todoRouter =  require('./routers/todo')
-const facebookRouter = require('./routers/fecebook')
+
 app.use(express.json())
 
 
-app.use(passport.initialize());
-require('../facebook')
-
 app.use(userRouter)
 app.use(todoRouter)
-app.use(facebookRouter)
 
 
 

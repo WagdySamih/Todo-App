@@ -52,9 +52,61 @@ router.get('/todo/:id', async (req, res) => {
  *   route          get /todo
  *   access         Public
  */
+/** -------------
+ *  ---QUERIES---
+ *  -------------
+ *      fetch all completed and none completed todos
+ *           /todo?isCompleted=true
+ *           /todo?isCompleted=false
+ * 
+ *      pagination
+ *          /todo?skip=x&limit=y
+ * 
+ *      sorting
+ *          /todo?sortBy=createdAt:asc  
+ *          /todo?sortBy=createdAt:desc
+ */
 router.get('/todo', async (req, res) => {
+    const match = {}
+    const options = {}
+    const sortBy = {}
+    const $text = {}
+
+    /// if is completed exists assign it to match
+    if(req.query.isCompleted){
+        match.isCompleted = (req.query.isCompleted==='true')
+    }
+
+    /// if skip exists assign it to options
+    //todo?skip=x&limit=y
+    if(req.query.skip){
+        options.skip =parseInt(req.query.skip)
+    }
+    /// if limit exists assign it to options
+    if(req.query.limit){
+        options.limit =parseInt(req.query.limit)
+    }
+
+
+    /// if sortBy exists assign it to sortBy
+    /// todo?sortBy=createdAt:desc
+    if(req.query.sortBy){
+        const parts = req.query.sortBy.split(':')
+        sortBy[parts[0]] = 'asc'=== parts[1] ? 1:-1
+    }
+
+    
+    /// if sortBy exists assign it to sortBy
+    /// todo?search=task 1
+    if(req.query.search){
+        $text.$search = req.query.search
+        console.log($text)
+    }
     try {
-        const todos = await Todo.find()
+        const todos = await Todo.find({$text})
+            .skip(options.skip)
+            .limit(options.limit)
+            .sort({...sortBy})
 
         /// getting all owners details 
         for(let i=0 ; i<todos.length ; i++)
@@ -108,7 +160,7 @@ router.patch('/todo/:id', Auth, async (req, res) => {
                 error: 'user can not delete others todos'
             })
         }
-
+        /// update todo
         updates.forEach((update) => todo[update] = req.body[update])
         await todo.save()
 
