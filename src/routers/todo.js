@@ -2,6 +2,7 @@ const exrpess = require('express')
 const router = exrpess.Router()
 const Todo = require('../models/todo')
 const Auth = require('../middleware/Auth')
+const e = require('express')
 
 /**
  *   description    create new todo
@@ -55,10 +56,9 @@ router.get('/todo/:id', async (req, res) => {
 /** -------------
  *  ---QUERIES---
  *  -------------
- *      fetch all completed and none completed todos
- *           /todo?isCompleted=true
- *           /todo?isCompleted=false
- * 
+ *      search
+ *          /todo/search=anything
+
  *      pagination
  *          /todo?skip=x&limit=y
  * 
@@ -67,15 +67,9 @@ router.get('/todo/:id', async (req, res) => {
  *          /todo?sortBy=createdAt:desc
  */
 router.get('/todo', async (req, res) => {
-    const match = {}
     const options = {}
     const sortBy = {}
     const $text = {}
-
-    /// if is completed exists assign it to match
-    if(req.query.isCompleted){
-        match.isCompleted = (req.query.isCompleted==='true')
-    }
 
     /// if skip exists assign it to options
     //todo?skip=x&limit=y
@@ -95,18 +89,29 @@ router.get('/todo', async (req, res) => {
         sortBy[parts[0]] = 'asc'=== parts[1] ? 1:-1
     }
 
-    
+    let todos
     /// if sortBy exists assign it to sortBy
     /// todo?search=task 1
     if(req.query.search){
         $text.$search = req.query.search
-        console.log($text)
-    }
-    try {
-        const todos = await Todo.find({$text})
+        
+        todos = await Todo.find({$text})
+            .skip(options.skip)
+            .limit(options.limit)
+        //    .project({ score: { $meta: "textScore" } })
+            .sort({'score':{'$meta': 'textScore'}})
+    
+    } else {
+        todos = await Todo.find({})
             .skip(options.skip)
             .limit(options.limit)
             .sort({...sortBy})
+        
+    }
+    
+
+    
+    try {
 
         /// getting all owners details 
         for(let i=0 ; i<todos.length ; i++)
