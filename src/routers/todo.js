@@ -1,8 +1,13 @@
+const assert = require('assert')
 const exrpess = require('express')
 const router = exrpess.Router()
+
 const Todo = require('../models/todo')
+const User = require('../models/user')
+
+
 const Auth = require('../middleware/Auth')
-const e = require('express')
+
 
 /**
  *   description    create new todo
@@ -39,7 +44,10 @@ router.get('/todo/:id', async (req, res) => {
             })
         }
         /// getting owner details
-        await todo.populate({path:'owner',select:['email','phoneNumber','userName']}).execPopulate()
+        await todo.populate({
+            path: 'owner',
+            select: ['email', 'phoneNumber', 'userName']
+        }).execPopulate()
         res.status(200).json(todo)
     } catch (error) {
         res.status(500).json(error.message)
@@ -58,7 +66,7 @@ router.get('/todo/:id', async (req, res) => {
  *  -------------
  *      search
  *          /todo/search=anything
-
+ *
  *      pagination
  *          /todo?skip=x&limit=y
  * 
@@ -70,59 +78,73 @@ router.get('/todo', async (req, res) => {
     const options = {}
     const sortBy = {}
     const $text = {}
-
-    /// if skip exists assign it to options
-    //todo?skip=x&limit=y
-    if(req.query.skip){
-        options.skip =parseInt(req.query.skip)
-    }
-    /// if limit exists assign it to options
-    if(req.query.limit){
-        options.limit =parseInt(req.query.limit)
-    }
-
-
-    /// if sortBy exists assign it to sortBy
-    /// todo?sortBy=createdAt:desc
-    if(req.query.sortBy){
-        const parts = req.query.sortBy.split(':')
-        sortBy[parts[0]] = 'asc'=== parts[1] ? 1:-1
-    }
-
-    let todos
-    /// if sortBy exists assign it to sortBy
-    /// todo?search=task 1
-    if(req.query.search){
-        $text.$search = req.query.search
-        
-        todos = await Todo.find({$text})
-            .skip(options.skip)
-            .limit(options.limit)
-        //    .project({ score: { $meta: "textScore" } })
-            .sort({'score':{'$meta': 'textScore'}})
-    
-    } else {
-        todos = await Todo.find({})
-            .skip(options.skip)
-            .limit(options.limit)
-            .sort({...sortBy})
-        
-    }
-    
-
-    
     try {
+        /// if skip exists assign it to options
+        //todo?skip=x&limit=y
+        if (req.query.skip) {
+            options.skip = parseInt(req.query.skip)
+        }
+        /// if limit exists assign it to options
+        if (req.query.limit) {
+            options.limit = parseInt(req.query.limit)
+        }
+
+
+        /// if sortBy exists assign it to sortBy
+        /// todo?sortBy=createdAt:desc
+        if (req.query.sortBy) {
+            const parts = req.query.sortBy.split(':')
+            sortBy[parts[0]] = 'asc' === parts[1] ? 1 : -1
+        }
+
+        let todos
+        /// if search exist excute with search field
+        /// todo?search=task 1
+        if (req.query.search) {
+            $text.$search = req.query.search
+
+            todos = await Todo.find({$text})
+                .skip(options.skip)
+                .limit(options.limit)
+
+        } else {
+            todos = await Todo.find({})
+                .skip(options.skip)
+                .limit(options.limit)
+                .sort({
+                    ...sortBy
+                })
+        }
 
         /// getting all owners details 
-        for(let i=0 ; i<todos.length ; i++)
-             await todos[i].populate({path:'owner',select:['email','phoneNumber','userName']}).execPopulate()
+        for (let i = 0; i < todos.length; i++)
+            await todos[i].populate({
+                path: 'owner',
+                select: ['email', 'phoneNumber', 'userName']
+            }).execPopulate()
         res.status(200).json(todos)
     } catch (error) {
         res.status(500).json(error.message)
     }
 })
 
-
+/**
+ *   description    get all todos of single user
+ *   route          patch /todo/user/:id
+ *   access         Public
+ */
+router.get('/todo/user/:id', async (req, res) => {
+    try {
+        const user = await User.findById(req.params.id)
+        if(!user){
+            return res.status(404).send({error:'Page not found'})
+        }
+        todos = await Todo.find({owner:req.params.id })
+        res.status(200).json(todos)
+    } catch (error) {
+        res.status(500).json(error.message)
+    }
+})
 
 
 /**
@@ -154,17 +176,16 @@ router.patch('/todo/:id', Auth, async (req, res) => {
     try {
         const todo = await Todo.findById(req.params.id)
         if (!todo) {
-            return res.status(404).send({
-                error: 'Page Not Found'
-            })
+            return res.status(404).send({ error: 'Page Not Found' })
         }
+        console.log(todo.owner)
+        console.log(req.user._id)
 
         /// owner can edit only his todos
-        if (todo.owner !== req.user._id) {
-            return res.status(403).send({
-                error: 'user can not delete others todos'
-            })
+        if (assert.ok(todo.owner .equals(req.user._id ))) {
+            return res.status(403).send({error: 'user can not edit others todos'})
         }
+
         /// update todo
         updates.forEach((update) => todo[update] = req.body[update])
         await todo.save()
@@ -189,12 +210,13 @@ router.delete('/todo/:id', Auth, async (req, res) => {
                 error: 'Page Not Found'
             })
         }
+        console.log(todo.owner)
+        console.log(req.user._id)
         /// owner can delete only his todos
-        if (todo.owner !== req.user._id) {
-            return res.status(403).send({
-                error: 'user can not delete others todos'
-            })
+        if (assert.ok(todo.owner .equals(req.user._id ))) {
+            return res.status(403).send({  error: 'user can not delete others todos'})
         }
+
         res.status(200).json({})
     } catch (error) {
         res.status(500).json(error.message)

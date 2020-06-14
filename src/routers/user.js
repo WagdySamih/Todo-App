@@ -138,7 +138,7 @@ router.post('/user/email/verify',Auth ,async(req, res)=>{
  *   route          POST /email/confirm/:verifyToken
  *   access         Public
  */
-router.get('/user/email/confirm/:verifyToken' ,async(req, res)=>{
+router.patch('/user/email/confirm/:verifyToken' ,async(req, res)=>{
     try{
         /// verify the token and get user with that id
         const decoded = jwt.verify(req.params.verifyToken, process.env.JWT_SECRET)
