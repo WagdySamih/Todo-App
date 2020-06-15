@@ -1,7 +1,7 @@
 {
   "name": "todo-app-qurba",
   "version": "1.0.0",
-  "description": "",
+  "description": "This Project was built as a simple backend task that would allow me to earn the opertuninty of doing a co-op training with \r a company, the main objective of this task was to assess how much I can finish\r and learn given time constraint.",
   "main": "index.js",
   "scripts": {
     "start": "node ./src/index.js",
@@ -17,9 +17,17 @@
     "mongoose": "^5.9.18",
     "nexmo": "^2.7.0",
     "nodemailer": "^6.4.8",
-    "nodemon": "^2.0.4",
-    "passport": "^0.4.1",
-    "passport-facebook": "^3.0.0",
     "validator": "^13.1.1"
+  },
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/WagdySamih/Todo-App.git"
+  },
+  "bugs": {
+    "url": "https://github.com/WagdySamih/Todo-App/issues"
+  },
+  "homepage": "https://github.com/WagdySamih/Todo-App#readme",
+  "devDependencies": {
+    "nodemon": "^2.0.4"
   }
 }
