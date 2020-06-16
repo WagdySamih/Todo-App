@@ -59,11 +59,20 @@ The following is just a simple list of the api end points:
 
 >PATCH  /user/phonenumber/confirm/:code
 
+# Facebook Login
+
+>GET /user/facebook
+
+>GET /user/facebook/callback
+
+>GET /fail
+
+
 Install the dependencies and start the server to test the Api.
 
 ```sh
+npm init
 npm run start
-npm run dev
 ```
 
 ## Todos
