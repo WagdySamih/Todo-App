@@ -5,11 +5,12 @@ a company, the main objective of this task was to assess how much I can finish
 and learn given time constraint.
 
 ## Task Requiremnts:
-- User should be able to list all objects in the platform. No login required.
-- User should be able to read a specific object in full detail. No login required.
-- User should be able to search all objects using any of the fields in that object (title, body). No login required.
-- User should be able to sign-up via email and password.
-- User should be able to login. 
+- User can list all objects in the platform. No login required.
+- User can read a specific object in full detail. No login required.
+- User can search all objects using any of the fields in that object (title, body). No login required.
+- User can sign-up via email and password.
+- User can login via email and password. 
+- User can login via Facebook.
 - Logged-in User should be able to create a todo.
 - Logged-in User should be able to edit his todos.
 - Logged-in User should be able to delete his todos.
@@ -65,7 +66,7 @@ The following is just a simple list of the api end points:
 
 >GET /user/facebook/callback
 
->GET /fail
+>GET /user/facebook/fail
 
 
 Install the dependencies and start the server to test the Api.
