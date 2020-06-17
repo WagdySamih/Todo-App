@@ -45,7 +45,7 @@ router.get("/user/facebook/callback", passport.authenticate("facebook", {
  *   route          user/facebook/fail
  *   access         Public
  */
-router.get("/fail", (req, res) => {
+router.get("/user/facebook/fail", (req, res) => {
     res.send({
         error: "Failed attempt"
     });

@@ -106,9 +106,7 @@ router.get('/todo', async (req, res) => {
             todos = await Todo.find({$text}, {score: {$meta: "textScore"}})
                 .skip(options.skip)
                 .limit(options.limit)
-                .sort({
-                    score: { $meta: "textScore" }
-                })
+                .sort({score: { $meta: "textScore" }})
 
         } else {
             todos = await Todo.find({})

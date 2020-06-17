@@ -145,7 +145,7 @@ router.patch('/user/email/confirm/:verifyToken' ,async(req, res)=>{
         const user = await User.findById (decoded._id)
         /// set verification email is true
         user.isEmailVerified = true
-        user.save()
+        await user.save()
         res.send(user)
     } catch (error) {
         res.status(500).send(error.message)
